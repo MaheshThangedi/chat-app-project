@@ -1,9 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const mockApi = require('./mockData');
+import express from 'express';
+import cors from 'cors';
+import mockApi from './mockData.js';
 
 const app = express();
-const port = 5001;
 
 app.use(cors());
 app.use(express.json());
@@ -47,5 +46,19 @@ app.post('/api/chat/:id', (req, res) => {
   res.json(response);
 });
 
+// --- NEW DELETE ENDPOINT ---
+// DELETE: /api/session/:id
+// Deletes a session and its chat history
+app.delete('/api/session/:id', (req, res) => {
+  const { id } = req.params;
+  const result = mockApi.deleteSession(id);
+  if (result.success) {
+    res.json(result);
+  } else {
+    res.status(404).json({ error: 'Session not found' });
+  }
+});
 
+// --- VERCEL EXPORT ---
+// This line MUST be at the bottom for Vercel
 export default app;

@@ -20,13 +20,19 @@ const CloseIcon = () => (
   </svg>
 );
 
-// Your new Chat App Logo for the Sidebar
+// Your Chat App Logo
 const AppLogo = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-7 h-7 text-blue-500">
     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
   </svg>
 );
 
+// --- NEW TRASH ICON ---
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.578 0a48.108 48.108 0 013.478-.397m7.64 0a48.108 48.108 0 00-7.64 0m7.64 0l-3.478-.397M9.26 9" />
+  </svg>
+);
 
 // Helper to format date
 const formatDateTime = (isoString) => {
@@ -44,7 +50,20 @@ const formatDateTime = (isoString) => {
   }
 };
 
-const Sidebar = ({ sessions, isOpen, toggleSidebar, onNewChat, isLoadingNewChat }) => {
+// --- ADD onDeleteSession PROP ---
+const Sidebar = ({ sessions, isOpen, toggleSidebar, onNewChat, isLoadingNewChat, onDeleteSession }) => {
+
+  const handleDelete = (e, sessionId) => {
+    // Stop the event from bubbling up to the <Link>
+    e.stopPropagation(); 
+    e.preventDefault();
+    
+    // Show a confirmation popup
+    if (window.confirm("Are you sure you want to delete this chat session?")) {
+      onDeleteSession(sessionId);
+    }
+  };
+
   return (
     <div 
       className={`fixed inset-y-0 left-0 z-30 w-72 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -52,7 +71,7 @@ const Sidebar = ({ sessions, isOpen, toggleSidebar, onNewChat, isLoadingNewChat 
     >
       <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <AppLogo /> {/* Using the consistent app logo */}
+          <AppLogo />
           <span className="text-xl font-bold">History</span>
         </div>
         <button onClick={toggleSidebar} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
@@ -82,12 +101,26 @@ const Sidebar = ({ sessions, isOpen, toggleSidebar, onNewChat, isLoadingNewChat 
         <ul className="space-y-1 px-2">
           {sessions.map((session) => (
             <li key={session.id}>
+              {/* Add 'group' class to the Link */}
               <Link 
                 to={`/${session.id}`}
-                className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors group"
               >
-                <div className="font-medium truncate">{session.title || `Session ${session.id}`}</div>
-                <div className="text-xs text-gray-500">{formatDateTime(session.dateTime)}</div>
+                {/* Session Title and Date */}
+                <div className="flex-1 truncate">
+                  <div className="font-medium truncate">{session.title || `Session ${session.id}`}</div>
+                  <div className="text-xs text-gray-500">{formatDateTime(session.dateTime)}</div>
+                </div>
+
+                {/* --- NEW DELETE BUTTON --- */}
+                {/* This button will show when you hover the 'group' (the Link) */}
+                <button 
+                  onClick={(e) => handleDelete(e, session.id)}
+                  className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Delete session"
+                >
+                  <TrashIcon />
+                </button>
               </Link>
             </li>
           ))}

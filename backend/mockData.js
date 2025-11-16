@@ -131,36 +131,51 @@ const addMessage = (id, question) => {
     db.chats[id] = [];
   }
   
-  // Add user message
   db.chats[id].push({ sender: 'user', text: question });
 
-  // Get a random mock response with suggestions
   const randomResponseEntry = mockResponses[Math.floor(Math.random() * mockResponses.length)];
   
   const botResponse = {
     sender: 'bot',
     text: `${randomResponseEntry.response.text} (In response to: "${question}")`,
     tableData: randomResponseEntry.response.tableData,
-    suggestions: randomResponseEntry.suggestions // Attach suggestions here
+    suggestions: randomResponseEntry.suggestions
   };
   
-  // Add bot response
   db.chats[id].push(botResponse);
   
-  // If this is the first real question (after initial bot welcome), update the session title
-  if (db.chats[id].length === 3) { // [bot welcome, user q, bot response]
+  if (db.chats[id].length === 3) {
     const session = db.sessions.find(s => s.id === id);
     if (session) {
-      session.title = question.substring(0, 25) + (question.length > 25 ? '...' : ''); // Generate title from first question
+      session.title = question.substring(0, 25) + (question.length > 25 ? '...' : '');
     }
   }
   
   return botResponse;
 };
 
+// --- NEW FUNCTION TO DELETE A SESSION ---
+const deleteSession = (id) => {
+  // Find index of session to delete
+  const sessionIndex = db.sessions.findIndex(s => s.id === id);
+  
+  if (sessionIndex > -1) {
+    // Remove from sessions array
+    db.sessions.splice(sessionIndex, 1);
+  }
+  
+  // Delete chat history
+  if (db.chats[id]) {
+    delete db.chats[id];
+  }
+  
+  return { success: true, message: `Session ${id} deleted` };
+};
+
 module.exports = {
   getSessions,
   createNewSession,
   getSessionHistory,
-  addMessage
+  addMessage,
+  deleteSession // <-- ADD THIS NEW EXPORT
 };
