@@ -28,7 +28,7 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Used for new chat button state
   
-  const API_URL = 'http://localhost:5001/api';
+  const API_URL = '/api';
 
   // Fetch all sessions on load
   useEffect(() => {

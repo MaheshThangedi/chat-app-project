@@ -47,6 +47,4 @@ app.post('/api/chat/:id', (req, res) => {
   res.json(response);
 });
 
-app.listen(port, () => {
-  console.log(`Backend server listening at http://localhost:${port}`);
-});
+export default app;
